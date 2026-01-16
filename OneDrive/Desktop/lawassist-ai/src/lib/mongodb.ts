@@ -12,11 +12,12 @@ declare global {
 
 const MONGODB_URI = process.env.MONGODB_URI as string;
 
-if (!MONGODB_URI) {
-  throw new Error(
-    "Please define the MONGODB_URI environment variable inside .env.local"
-  );
-}
+// Removed top-level check to prevent build failure
+// if (!MONGODB_URI) {
+//   throw new Error(
+//     "Please define the MONGODB_URI environment variable inside .env.local"
+//   );
+// }
 
 const cached: MongooseCache = global.mongooseCache ?? {
   conn: null,
@@ -37,6 +38,10 @@ async function dbConnect(): Promise<typeof mongoose> {
       bufferCommands: false,
       serverSelectionTimeoutMS: 5000, // Fail fast if IP is blocked
     };
+
+    if (!MONGODB_URI) {
+      throw new Error("Please define the MONGODB_URI environment variable inside .env.local");
+    }
 
     cached.promise = mongoose.connect(MONGODB_URI, opts);
   }
